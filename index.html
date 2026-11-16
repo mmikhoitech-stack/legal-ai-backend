@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SA Law Email Drafter</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f4f4f9; }
+        .box { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+        textarea { width: 100%; height: 150px; margin-bottom: 10px; padding: 10px; }
+        button { background: #0056b3; color: white; padding: 10px 20px; border: none; cursor: pointer; font-size: 16px; }
+        #output { margin-top: 20px; padding: 15px; background: #eef; display: none; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>SA Law Email Drafter</h2>
+        <textarea id="emailText" placeholder="Paste the incoming email here..."></textarea>
+        <input type="file" id="attachment" accept=".pdf,.doc,.docx"><br><br>
+        <button onclick="draft()" id="btn">Draft Reply</button>
+        <div id="output">
+            <h3>Draft:</h3>
+            <pre id="draftText"></pre>
+        </div>
+    </div>
+
+    <script>
+        async function draft() {
+            const text = document.getElementById('emailText').value;
+            const file = document.getElementById('attachment').files[0];
+            const btn = document.getElementById('btn');
+            const output = document.getElementById('output');
+            const draftText = document.getElementById('draftText');
+
+            if (!text) return alert("Paste email text first.");
+
+            btn.innerText = "Drafting...";
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('emailText', text);
+            if (file) formData.append('attachment', file);
+
+            try {
+                const res = await fetch('http://localhost:3000/api/agents/email-draft', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                
+                if (data.error) throw new Error(data.error);
+
+                draftText.innerText = data.draftReply || "No draft returned.";
+                output.style.display = 'block';
+            } catch (e) {
+                alert("Error: " + e.message);
+            } finally {
+                btn.innerText = "Draft Reply";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
