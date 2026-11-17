@@ -7,17 +7,16 @@ const OpenAI = require('openai');
 
 const app = express();
 
-// ALLOW ALL ORIGINS FOR TESTING
+// ALLOW ALL ORIGINS (Crucial for testing)
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-// DeepSeek Setup
+// DeepSeek Setup (API key is safely pulled from Render)
 const deepseek = new OpenAI({
   apiKey: process.env.DEEPSEEK_API_KEY,
   baseURL: 'https://api.deepseek.com/v1',
 });
 
-// Set up multer for file uploads
 const upload = multer({ storage: multer.memoryStorage() });
 
 // The Drafting Endpoint
@@ -66,7 +65,7 @@ app.post('/api/agents/email-draft', upload.single('attachment'), async (req, res
 
   } catch (error) {
     console.error("Error generating draft:", error);
-    res.status(500).json({ error: "Failed to generate draft. Please check server logs." });
+    res.status(500).json({ error: "Failed to generate draft." });
   }
 });
 
