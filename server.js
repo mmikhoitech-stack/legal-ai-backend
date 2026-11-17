@@ -7,18 +7,17 @@ const OpenAI = require('openai');
 
 const app = express();
 
-// ALLOW ALL ORIGINS FOR TESTING (You can lock this down later)
+// ALLOW ALL ORIGINS FOR TESTING
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 // DeepSeek Setup
 const deepseek = new OpenAI({
-  // This pulls the key from Render's environment variables
   apiKey: process.env.DEEPSEEK_API_KEY,
   baseURL: 'https://api.deepseek.com/v1',
 });
 
-// Set up multer for file uploads (storing in memory)
+// Set up multer for file uploads
 const upload = multer({ storage: multer.memoryStorage() });
 
 // The Drafting Endpoint
@@ -28,7 +27,6 @@ app.post('/api/agents/email-draft', upload.single('attachment'), async (req, res
     const attachment = req.file;
     let attachmentText = "";
 
-    // 1. Process the attachment if one was uploaded
     if (attachment) {
       if (attachment.mimetype === 'application/pdf') {
         const pdfData = await pdfParse(attachment.buffer);
@@ -42,33 +40,28 @@ app.post('/api/agents/email-draft', upload.single('attachment'), async (req, res
       }
     }
 
-    // 2. Set up the system prompt for the AI
     const systemPrompt = `You are an expert South African legal assistant. 
     Draft a professional reply to the incoming email. 
     If attachment text is provided, analyze it and incorporate relevant details.
     Ensure the tone is formal, clear, and POPIA compliant.
     Do not invent facts. If information is missing, politely ask for it.`;
 
-    // 3. Combine the email and attachment text for the AI
     let userPrompt = `Incoming Email:\n${emailText}\n\n`;
     if (attachmentText) {
       userPrompt += `Attachment Content:\n${attachmentText}\n\n`;
     }
     userPrompt += `Please draft a reply.`;
 
-    // 4. Call the DeepSeek API
     const completion = await deepseek.chat.completions.create({
       model: "deepseek-chat",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
       ],
-      temperature: 0.2, // Lower temperature for more focused, legal-style drafting
+      temperature: 0.2,
     });
 
     const draftReply = completion.choices[0].message.content;
-
-    // 5. Send the result back to the frontend
     res.json({ draftReply: draftReply });
 
   } catch (error) {

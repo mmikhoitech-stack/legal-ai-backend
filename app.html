@@ -9,7 +9,6 @@
         .box { background: white; max-width: 800px; margin: 0 auto; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         h2 { margin-top: 0; color: #333; }
         
-        /* Fixes the input box width and text wrapping */
         textarea { 
             width: 100%; 
             height: 150px; 
@@ -36,7 +35,6 @@
         }
         button:hover { background: #004494; }
 
-        /* Fixes the output box text wrapping */
         #output { 
             margin-top: 20px; 
             padding: 15px; 
@@ -79,18 +77,15 @@
             const emailText = document.getElementById('emailText').value;
             const attachment = document.getElementById('attachment').files[0];
 
-            // Basic validation
             if (!emailText && !attachment) {
                 alert("Please paste an email or upload an attachment first.");
                 return;
             }
 
-            // Change button state
             btn.innerText = "Drafting...";
             btn.disabled = true;
             outputDiv.style.display = 'none';
 
-            // Prepare data
             const formData = new FormData();
             formData.append('emailText', emailText);
             if (attachment) {
@@ -98,8 +93,8 @@
             }
 
             try {
-                // IMPORTANT: Make sure this URL matches your Render backend URL exactly!
-                const res = await fetch('https://legal-ai-backend-66.onrender.com/draft', {
+                // THIS URL MUST MATCH YOUR RENDER URL
+                const res = await fetch('https://legal-ai-backend-66.onrender.com/api/agents/email-draft', {
                     method: 'POST',
                     body: formData
                 });
@@ -112,7 +107,6 @@
                 
                 if (data.error) throw new Error(data.error);
 
-                // Display the result
                 draftText.innerText = data.draftReply || "No reply generated.";
                 outputDiv.style.display = 'block';
 
@@ -120,7 +114,6 @@
                 console.error("Error:", error);
                 alert("Failed to generate draft. Check console for details. Make sure your backend is running.");
             } finally {
-                // Reset button state
                 btn.innerText = "Draft Reply";
                 btn.disabled = false;
             }
