@@ -2,62 +2,61 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SA Law Email Drafter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SA Law AI - Email Drafting Agent</title>
     <style>
-        body { font-family: Arial; padding: 20px; background: #f4f4f9; }
-        .box { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
-        textarea { width: 100%; height: 150px; margin-bottom: 10px; padding: 10px; }
-        button { background: #0056b3; color: white; padding: 10px 20px; border: none; cursor: pointer; font-size: 16px; }
-        #output { margin-top: 20px; padding: 15px; background: #eef; display: none; white-space: pre-wrap; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; color: #333; }
+        .hero { background-color: #1a365d; color: white; padding: 80px 20px; text-align: center; }
+        .hero h1 { font-size: 2.5em; margin-bottom: 20px; }
+        .hero p { font-size: 1.2em; max-width: 600px; margin: 0 auto 30px; opacity: 0.9; }
+        .btn { background-color: #38a169; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-size: 1.2em; font-weight: bold; display: inline-block; transition: background 0.3s; }
+        .btn:hover { background-color: #2f855a; }
+        .features { max-width: 900px; margin: 50px auto; padding: 0 20px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+        .feature { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); flex: 1; min-width: 250px; }
+        .feature h3 { color: #1a365d; margin-top: 0; }
+        .pricing { background: white; max-width: 400px; margin: 50px auto; padding: 40px; border-radius: 8px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid #38a169; }
+        .price { font-size: 3em; font-weight: bold; color: #1a365d; margin: 20px 0; }
+        .price span { font-size: 0.4em; font-weight: normal; color: #666; }
+        .strike { text-decoration: line-through; color: #a0aec0; font-size: 0.5em; display: block; margin-bottom: -10px;}
+        .footer { text-align: center; padding: 40px; color: #666; font-size: 0.9em; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2>SA Law Email Drafter</h2>
-        <textarea id="emailText" placeholder="Paste the incoming email here..."></textarea>
-        <input type="file" id="attachment" accept=".pdf,.doc,.docx"><br><br>
-        <button onclick="draft()" id="btn">Draft Reply</button>
-        <div id="output">
-            <h3>Draft:</h3>
-            <pre id="draftText"></pre>
+
+    <div class="hero">
+        <h1>The Harvey-Style AI Agent for South African Law Firms.</h1>
+        <p>Stop spending hours drafting initial replies. Analyze incoming emails, review attachments, and generate firm-voice drafts in 15 seconds. Fully POPIA compliant.</p>
+        <a href="app.html" class="btn">Launch App (Demo)</a>
+    </div>
+
+    <div class="features">
+        <div class="feature">
+            <h3>🧠 SA Legal Intelligence</h3>
+            <p>Identifies legal issues citing SA legislation (Companies Act, LRA, POPIA) and flags missing information.</p>
+        </div>
+        <div class="feature">
+            <h3>📄 Attachment Analysis</h3>
+            <p>Upload PDFs or Word documents. The AI reads them and incorporates them into the draft reply.</p>
+        </div>
+        <div class="feature">
+            <h3>🛡️ POPIA Compliant</h3>
+            <p>Built-in anonymization scrubs ID numbers and phone numbers before processing. Safe for client data.</p>
         </div>
     </div>
 
-    <script>
-        async function draft() {
-            const text = document.getElementById('emailText').value;
-            const file = document.getElementById('attachment').files[0];
-            const btn = document.getElementById('btn');
-            const output = document.getElementById('output');
-            const draftText = document.getElementById('draftText');
+    <div class="pricing">
+        <h2>Black Friday Launch</h2>
+        <p>Founding Member Lifetime Deal</p>
+        <div class="strike">R 1,500 / month</div>
+        <div class="price">R 499<span>/month</span></div>
+        <p style="color: #666; font-size: 0.9em; margin-bottom: 30px;">Locked in for life. Limited to the first 50 firms.</p>
+        <a href="#" class="btn" style="width: 80%;">Claim Your Spot</a>
+        <p style="font-size: 0.8em; color: #999; margin-top: 15px;">(Checkout link coming soon)</p>
+    </div>
 
-            if (!text) return alert("Paste email text first.");
+    <div class="footer">
+        &copy; 2026 SA Law AI. Built for South African attorneys.
+    </div>
 
-            btn.innerText = "Drafting...";
-            btn.disabled = true;
-
-            const formData = new FormData();
-            formData.append('emailText', text);
-            if (file) formData.append('attachment', file);
-
-            try {
-                const res = await fetch('http://localhost:3000/api/agents/email-draft', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await res.json();
-                
-                if (data.error) throw new Error(data.error);
-
-                draftText.innerText = data.draftReply || "No draft returned.";
-                output.style.display = 'block';
-            } catch (e) {
-                alert("Error: " + e.message);
-            } finally {
-                btn.innerText = "Draft Reply";
-                btn.disabled = false;
-            }
-        }
-    </script>
 </body>
 </html>
