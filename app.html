@@ -2,13 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Onus Probandi Secure Email</title>
+    <title>Onus Probandi</title>
 </head>
 <body>
     <h2>Send Secure Email</h2>
+    
     <input type="email" id="recipientEmail" placeholder="Recipient Email" value="mmikhoitech@gmail.com"><br><br>
     <input type="text" id="emailSubject" placeholder="Subject" value="Test Subject"><br><br>
-    <textarea id="emailMessage" rows="5" placeholder="Message...">Hello, this is a test message.</textarea><br><br>
+    <textarea id="emailMessage" rows="5" placeholder="Message...">Hello, this is a test.</textarea><br><br>
+    
     <button id="sendButton" onclick="sendSecureEmail()">Send secure email</button>
     <p id="status"></p>
 
@@ -20,12 +22,11 @@
             const statusDiv = document.getElementById('status');
             const button = document.getElementById('sendButton');
 
-            // 🚨 IMPORTANT: CHANGE THIS TO YOUR RENDER URL (Do not use onusprobandi.guru here)
+            // 🚨 PUT YOUR RENDER URL HERE (e.g., https://legal-ai-backend.onrender.com)
             const RENDER_URL = 'https://YOUR_RENDER_URL.onrender.com'; 
 
             button.disabled = true;
-            button.innerText = "Sending...";
-            statusDiv.innerText = "";
+            statusDiv.innerText = "Sending...";
 
             try {
                 const response = await fetch(`${RENDER_URL}/api/secure-email/send`, {
@@ -41,14 +42,13 @@
                     statusDiv.innerText = "✅ Email sent successfully!";
                 } else {
                     statusDiv.style.color = "red";
-                    statusDiv.innerText = "❌ Error: " + (data.error || "Failed");
+                    statusDiv.innerText = "❌ Error: Failed to send.";
                 }
             } catch (error) {
                 statusDiv.style.color = "red";
                 statusDiv.innerText = "❌ Network error. Backend is down.";
             } finally {
                 button.disabled = false;
-                button.innerText = "Send secure email";
             }
         }
     </script>
