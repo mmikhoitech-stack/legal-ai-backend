@@ -2,182 +2,55 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Onus Probandi — Dashboard</title>
-    <style>
-        :root {
-            --bg-dark: #0f172a;
-            --bg-panel: #1e293b;
-            --gold: #eab308;
-            --text-main: #f8fafc;
-            --text-muted: #cbd5e1;
-        }
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-        }
-        .top-bar { background-color: var(--gold); text-align: center; padding: 8px; font-size: 12px; font-weight: bold; color: var(--bg-dark); letter-spacing: 1px; }
-        .nav-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background-color: var(--bg-dark); border-bottom: 1px solid #334155; }
-        .logo { font-family: serif; font-size: 24px; font-weight: bold; letter-spacing: 1px; color: white; }
-        .logo span { color: var(--gold); border-bottom: 2px solid var(--gold); padding-bottom: 2px; }
-        .user-profile { background-color: var(--bg-panel); padding: 8px 15px; border-radius: 20px; display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
-        
-        .sub-nav { display: flex; gap: 20px; padding: 10px 30px; background-color: var(--bg-panel); font-size: 14px; border-bottom: 1px solid #334155; }
-        .sub-nav a { color: var(--text-muted); text-decoration: none; font-weight: 500; }
-        .sub-nav a.active { color: var(--gold); border-bottom: 2px solid var(--gold); padding-bottom: 8px; }
-        
-        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-        
-        .triage-box {
-            background-color: #1e3a8a;
-            border-radius: 8px;
-            padding: 20px;
-            border-left: 4px solid var(--gold);
-            margin-bottom: 30px;
-        }
-        .triage-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-        .triage-icon { background-color: #334155; padding: 10px; border-radius: 8px; font-size: 20px; }
-        .triage-title { margin: 0; font-size: 20px; color: white; }
-        .triage-sub { margin: 5px 0 0 0; font-size: 14px; color: #93c5fd; }
-
-        .triage-content {
-            background-color: #172554;
-            border: 1px solid #3b82f6;
-            border-radius: 6px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .welcome-section { margin-bottom: 30px; }
-        .welcome-title { font-family: serif; font-size: 36px; margin: 0 0 10px 0; }
-        .welcome-title span { color: var(--gold); }
-        .welcome-sub { color: var(--text-muted); font-size: 16px; margin: 0; }
-
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-        .stat-card { background-color: var(--bg-panel); padding: 20px; border-radius: 8px; border: 1px solid #334155; }
-        .stat-label { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; margin: 0 0 15px 0; }
-        .stat-value { font-size: 36px; font-family: serif; margin: 0; }
-
-        .btn-gold {
-            background-color: var(--gold);
-            color: var(--bg-dark);
-            border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .btn-gold:hover { background-color: #ca8a04; }
-    </style>
+    <title>Onus Probandi Secure Email</title>
 </head>
 <body>
-
-    <div class="top-bar">
-        REGISTERED PATENT 2026/09785 • BUILT ON VERIFIED GROUND • POPIA COMPLIANT
-    </div>
-
-    <div class="nav-header">
-        <div class="logo"><span>ONUS</span> PROBANDI</div>
-        <div class="user-profile">
-            Arthur Nieklaassen ▾
-        </div>
-    </div>
-
-    <div class="sub-nav">
-        <a href="#" class="active">Dashboard</a>
-        <a href="#">Search</a>
-        <a href="#">Verify</a>
-        <a href="#">AI Workspace</a>
-        <a href="#">My Matters</a>
-        <a href="#">Secure Email</a>
-    </div>
-
-    <div class="container">
-        
-        <div class="triage-box">
-            <div class="triage-header">
-                <div class="triage-icon">⚠️</div>
-                <div>
-                    <h2 class="triage-title">Urgent Triage</h2>
-                    <p class="triage-sub">Unread emails needing your attention.</p>
-                </div>
-            </div>
-            
-            <!-- The JavaScript will inject the fixed UI here -->
-            <div id="triage-content-area" class="triage-content">
-                <p style="color: #93c5fd; margin: 0;">Loading inbox securely...</p>
-            </div>
-        </div>
-
-        <div class="welcome-section">
-            <h1 class="welcome-title">Welcome back, <span>Arthur</span></h1>
-            <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
-                <span style="background-color: #334155; padding: 4px 10px; border-radius: 4px; font-size: 12px; letter-spacing: 1px;">PRACTITIONER SUITE</span>
-                <p class="welcome-sub">Your tools are tailored to your practice area.</p>
-            </div>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <p class="stat-label">SEARCHES THIS MONTH</p>
-                <h2 class="stat-value">9</h2>
-            </div>
-            <div class="stat-card">
-                <p class="stat-label">CITATIONS VERIFIED</p>
-                <h2 class="stat-value">25</h2>
-            </div>
-        </div>
-
-    </div>
+    <h2>Send Secure Email</h2>
+    <input type="email" id="recipientEmail" placeholder="Recipient Email" value="mmikhoitech@gmail.com"><br><br>
+    <input type="text" id="emailSubject" placeholder="Subject" value="Test Subject"><br><br>
+    <textarea id="emailMessage" rows="5" placeholder="Message...">Hello, this is a test message.</textarea><br><br>
+    <button id="sendButton" onclick="sendSecureEmail()">Send secure email</button>
+    <p id="status"></p>
 
     <script>
-        async function loadEmails() {
-            const contentArea = document.getElementById('triage-content-area');
-            
-            // NOTE: Change this URL to your actual Render URL!
-            const RENDER_API_URL = 'https://onus-probandi-backend.onrender.com/api/emails';
+        async function sendSecureEmail() {
+            const to = document.getElementById('recipientEmail').value;
+            const subject = document.getElementById('emailSubject').value;
+            const message = document.getElementById('emailMessage').value;
+            const statusDiv = document.getElementById('status');
+            const button = document.getElementById('sendButton');
+
+            // 🚨 IMPORTANT: CHANGE THIS TO YOUR RENDER URL (Do not use onusprobandi.guru here)
+            const RENDER_URL = 'https://YOUR_RENDER_URL.onrender.com'; 
+
+            button.disabled = true;
+            button.innerText = "Sending...";
+            statusDiv.innerText = "";
 
             try {
-                const response = await fetch(RENDER_API_URL);
-                
-                if (!response.ok) {
-                    throw new Error(`Server error: ${response.status}`);
-                }
-                
-                const emails = await response.json();
-                
-                if (emails.length === 0) {
-                    // If the backend returns an empty list, show the connect button
-                    showConnectInboxUI(contentArea);
+                const response = await fetch(`${RENDER_URL}/api/secure-email/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ to, subject, message })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    statusDiv.style.color = "green";
+                    statusDiv.innerText = "✅ Email sent successfully!";
                 } else {
-                    contentArea.innerHTML = `<p>You have ${emails.length} emails.</p>`;
+                    statusDiv.style.color = "red";
+                    statusDiv.innerText = "❌ Error: " + (data.error || "Failed");
                 }
-                
             } catch (error) {
-                // THE FIX: If the backend throws a 500 error, catch it here and show the button
-                console.log("Backend sleeping or error:", error.message);
-                showConnectInboxUI(contentArea);
+                statusDiv.style.color = "red";
+                statusDiv.innerText = "❌ Network error. Backend is down.";
+            } finally {
+                button.disabled = false;
+                button.innerText = "Send secure email";
             }
         }
-
-        function showConnectInboxUI(container) {
-            container.innerHTML = `
-                <p style="color: #cbd5e1; font-size: 15px; margin-bottom: 20px;">
-                    Your inbox is not connected yet. Connect your email to let Onus Probandi triage client messages and draft verified replies.
-                </p>
-                <button class="btn-gold" onclick="alert('Email connection coming soon!')">
-                    Connect Inbox
-                </button>
-            `;
-        }
-
-        // Run the function when the page loads
-        window.onload = loadEmails;
     </script>
-
 </body>
 </html>
