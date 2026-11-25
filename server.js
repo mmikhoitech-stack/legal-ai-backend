@@ -102,6 +102,49 @@ app.post('/api/secure-email/send', requireAuth, emailLimiter, async (req, res) =
   }
 });
 
+
+// --- LUDUS COURTROOM ROUTES ---
+const multer = require('multer');
+const pdf = require('pdf-parse');
+const Groq = require('groq-sdk');
+
+const upload = multer({ storage: multer.memoryStorage() });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+// 1. The Upload Route
+app.post('/api/upload', upload.single('document'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+        const pdfData = await pdf(req.file.buffer);
+        res.json({ success: true, message: "Document parsed", text: pdfData.text.substring(0, 3000) });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Failed to parse document" });
+    }
+});
+
+// 2. The Courtroom Route (AI Judge)
+app.post('/api/courtroom/argue', async (req, res) => {
+    try {
+        const { argument, caseContext } = req.body;
+        const systemPrompt = `You are Justice Ludus, a strict High Court Judge. Be formal and demanding. Context: ${caseContext || "None"}`;
+        
+        const chatCompletion = await groq.chat.completions.create({
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: argument }
+            ],
+            model: "llama3-8b-8192",
+        });
+        res.json({ success: true, reply: chatCompletion.choices[0]?.message?.content });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "The Judge is currently in recess." });
+    }
+});
+// --- END COURTROOM ROUTES ---
+
+
 // --- START SERVER ---
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
