@@ -1,151 +1,116 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const rateLimit = require('express-rate-limit');
-const { randomUUID } = require('crypto');
-const nodemailer = require('nodemailer');
+const multer = require('multer');
+const Groq = require('groq-sdk');
+const PDFDocument = require('pdfkit');
+const { Readable } = require('stream');
+const { Resend } = require('resend');
+const { createClient } = require('@supabase/supabase-js');
+const OpenAI = require('openai');
+const pdfParse = require('pdf-parse');
 
 const app = express();
-const port = process.env.PORT || 3000;
 
 // --- MIDDLEWARE ---
 app.use(cors());
-app.use(express.json({ limit: '256kb' }));
+app.use(express.json());
 
-// --- AUTHENTICATION MIDDLEWARE ---
-const requireAuth = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) {
-    return res.status(401).json({ ok: false, error: 'UNAUTHENTICATED', message: 'No token provided' });
-  }
-  req.user = { id: 'user_' + token.substring(0, 8) };
-  next();
-};
-
-// --- RATE LIMITER (20 emails per 10 mins) ---
-const emailLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000, 
-  max: 20,
-  message: { ok: false, error: 'RATE_LIMITED', message: 'Too many emails sent. Try again in 10 minutes.' }
+// --- INITIALIZE APIS ---
+// 1. DeepSeek (Using OpenAI SDK but pointing to DeepSeek servers)
+const deepseek = new OpenAI({ 
+    apiKey: process.env.DEEPSEEK_API_KEY, 
+    baseURL: 'https://api.deepseek.com' 
 });
 
-// --- MAIL TRANSPORT ---
-const getTransporter = () => {
-  if (!process.env.SMTP_HOST) {
-    console.log("⚠️ No SMTP configured. Emails will be logged to console.");
-    return null;
-  }
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT || 587,
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-  });
-};
-
-// ==========================================
-// YOUR EXISTING ROUTES
-// ==========================================
-app.post('/api/agents/email-draft', (req, res) => {
-  res.json({ ok: true, message: "Draft generated" });
-});
-
-app.get('/', (req, res) => {
-  res.send("Onus Probandi Backend is Live and Running");
-});
-
-// ==========================================
-// 🚀 THE FIX: SECURE EMAIL SEND ROUTE
-// ==========================================
-app.post('/api/secure-email/send', requireAuth, emailLimiter, async (req, res) => {
-  const { to = '', subject = '', message = '' } = req.body || {};
-  
-  const details = {};
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) details.to = 'Invalid email address';
-  if (!subject || subject.length > 200) details.subject = 'Subject must be 1-200 characters';
-  if (!message || message.length > 20000) details.message = 'Message must be 1-20000 characters';
-  
-  if (Object.keys(details).length > 0) {
-    return res.status(400).json({ ok: false, error: 'VALIDATION', details });
-  }
-
-  try {
-    const reqId = randomUUID();
-    console.log(`[SECURE EMAIL] Sending to: ${to} | Subject: ${subject}`);
-
-    const transporter = getTransporter();
-    
-    if (transporter) {
-      await transporter.sendMail({
-        from: process.env.MAIL_FROM || '"Onus Probandi" <no-reply@onusprobandi.guru>',
-        to: to,
-        subject: subject,
-        text: message,
-      });
-    } else {
-      console.log("Mock Email Content:", message);
-    }
-
-    return res.status(200).json({ 
-      ok: true, 
-      id: reqId, 
-      sentAt: new Date().toISOString() 
-    });
-
-  } catch (error) {
-    console.error(`[SECURE EMAIL ERROR]`, error);
-    return res.status(502).json({ 
-      ok: false, 
-      error: 'MAIL_TRANSPORT', 
-      message: 'Failed to send email via mail server.' 
-    });
-  }
-});
-
-
-// --- LUDUS COURTROOM ROUTES ---
-const multer = require('multer');
-const pdf = require('pdf-parse');
-const Groq = require('groq-sdk');
-
-const upload = multer({ storage: multer.memoryStorage() });
+// 2. Groq
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-// 1. The Upload Route
-app.post('/api/upload', upload.single('document'), async (req, res) => {
-    try {
-        if (!req.file) return res.status(400).json({ error: "No file uploaded" });
-        const pdfData = await pdf(req.file.buffer);
-        res.json({ success: true, message: "Document parsed", text: pdfData.text.substring(0, 3000) });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Failed to parse document" });
-    }
-});
+// 3. Resend (Email)
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-// 2. The Courtroom Route (AI Judge)
-app.post('/api/courtroom/argue', async (req, res) => {
+// 4. Multer (File Uploads)
+const upload = multer({ storage: multer.memoryStorage() });
+
+
+// ==========================================
+// ONUS PROBANDI ROUTES
+// ==========================================
+
+// 1. Instruction-based AI Drafting
+app.post('/api/onus/draft', async (req, res) => {
     try {
-        const { argument, caseContext } = req.body;
-        const systemPrompt = `You are Justice Ludus, a strict High Court Judge. Be formal and demanding. Context: ${caseContext || "None"}`;
+        // --- PASTE YOUR DEEPSEEK DRAFTING LOGIC HERE ---
+        // const completion = await deepseek.chat.completions.create({...})
         
-        const chatCompletion = await groq.chat.completions.create({
-            messages: [
-                { role: "system", content: systemPrompt },
-                { role: "user", content: argument }
-            ],
-            model: "llama3-8b-8192",
-        });
-        res.json({ success: true, reply: chatCompletion.choices[0]?.message?.content });
+        res.json({ success: true, message: "Draft generated" });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "The Judge is currently in recess." });
+        res.status(500).json({ error: error.message });
     }
 });
-// --- END COURTROOM ROUTES ---
+
+// 2. Secure Inbox
+app.get('/api/onus/inbox', async (req, res) => {
+    try {
+        res.json({ success: true, emails: [] });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 3. Voice-to-PDF
+app.post('/api/onus/voice-to-pdf', upload.single('audio'), async (req, res) => {
+    try {
+        res.json({ success: true, message: "PDF generated" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 4. Matter-led Case Tracking
+app.get('/api/onus/matters', async (req, res) => {
+    try {
+        res.json({ success: true, matters: [] });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 
-// --- START SERVER ---
-app.listen(port, () => {
-  console.log(`🚀 Server running on port ${port}`);
+// ==========================================
+// LUDUS ROUTES
+// ==========================================
+
+// 1. Launch Custom Simulation
+app.post('/api/ludus/simulate', async (req, res) => {
+    try {
+        // --- PASTE YOUR LUDUS SIMULATION LOGIC HERE ---
+        res.json({ success: true, message: "Simulation created" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 2. Score the Simulation
+app.post('/api/ludus/score', async (req, res) => {
+    try {
+        // --- PASTE YOUR LUDUS SCORING LOGIC HERE ---
+        res.json({ success: true, scores: { reasoning: 85, authority: 90 } });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
+// ==========================================
+// HEALTH CHECK & START SERVER
+// ==========================================
+
+app.get('/', (req, res) => {
+    res.send('Master Backend is LIVE!');
+});
+
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
